@@ -9,34 +9,27 @@
   <main style="max-width: 600px; margin: 2rem auto; padding: 1.5rem; background: #ffffff; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
     <h1>Form Details</h1>
     <p>Here are the details you submitted:</p>
-
     <div id="status" class="form-status"></div>
-
     <div class="form-group">
       <label>Name</label>
       <p id="detail-name"></p>
     </div>
-
     <div class="form-group">
       <label>Email</label>
       <p id="detail-email"></p>
     </div>
-
     <div class="form-group">
       <label>Message</label>
       <p id="detail-message"></p>
     </div>
-
     <a href="index.html">← Back to form</a>
   </main>
-
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const statusEl = document.getElementById("status");
       const nameEl = document.getElementById("detail-name");
       const emailEl = document.getElementById("detail-email");
       const messageEl = document.getElementById("detail-message");
-
       const stored = localStorage.getItem("contactFormData");
 
       if (!stored) {
@@ -44,14 +37,11 @@
         statusEl.classList.add("error");
         return;
       }
-
       try {
         const data = JSON.parse(stored);
-
         nameEl.textContent = data.name || "";
         emailEl.textContent = data.email || "";
         messageEl.textContent = data.message || "";
-
         statusEl.textContent = "Form data loaded successfully.";
         statusEl.classList.add("success");
       } catch (e) {
