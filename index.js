@@ -1,156 +1,87 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // ------- Skill bars -------
-  const skillFills = document.querySelectorAll(".skill-bar-fill");
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const bar = entry.target;
-          const level = bar.getAttribute("data-skill-level");
-          bar.style.width = level + "%";
-          observer.unobserve(bar);
-        }
-      });
-    },
-    {
-      threshold: 0.4,
-    }
-  );
-
-  skillFills.forEach((bar) => observer.observe(bar));
-
-  // ------- Contact form validation + localStorage -------
+  // --- Contact form validation + save to localStorage ---
   const form = document.getElementById("contactForm");
-  const nameInput = document.getElementById("name");
-  const emailInput = document.getElementById("email");
-  const messageInput = document.getElementById("message");
-
-  const nameError = document.getElementById("name-error");
-  const emailError = document.getElementById("email-error");
-  const messageError = document.getElementById("message-error");
-  const formStatus = document.getElementById("form-status");
-
-  function resetErrors() {
-    if (!formStatus) return;
-    nameError.textContent = "";
-    emailError.textContent = "";
-    messageError.textContent = "";
-    formStatus.textContent = "";
-    formStatus.className = "form-status";
-  }
-
-  function isValidEmail(email) {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(email);
-  }
-
   if (form) {
-    form.addEventListener("submit", function (event) {
+    form.onsubmit = function (event) {
       event.preventDefault();
-      resetErrors();
+      // Get fields & error spans
+      const name = document.getElementById("name");
+      const email = document.getElementById("email");
+      const message = document.getElementById("message");
+      const nameErr = document.getElementById("name-error");
+      const emailErr = document.getElementById("email-error");
+      const messageErr = document.getElementById("message-error");
+      const status = document.getElementById("form-status");
+      // Reset errors
+      nameErr.textContent = emailErr.textContent = messageErr.textContent = "";
+      status.textContent = "";
+      status.className = "form-status";
+      let ok = true;
 
-      let isValid = true;
-
-      const name = nameInput.value.trim();
-      const email = emailInput.value.trim();
-      const message = messageInput.value.trim();
-
-      if (name === "") {
-        nameError.textContent = "Please enter your name.";
-        isValid = false;
+      if (name.value.trim() === "") {
+        nameErr.textContent = "Please enter your name.";
+        ok = false;
       }
-
-      if (email === "") {
-        emailError.textContent = "Please enter your email.";
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        emailError.textContent = "Please enter a valid email address.";
-        isValid = false;
+      const emailVal = email.value.trim();
+      if (emailVal === "") {
+        emailErr.textContent = "Please enter your email.";
+        ok = false;
+      } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal)) {
+        emailErr.textContent = "Please enter a valid email.";
+        ok = false;
       }
-
-      if (message === "") {
-        messageError.textContent = "Please enter a message.";
-        isValid = false;
+      if (message.value.trim() === "") {
+        messageErr.textContent = "Please enter a message.";
+        ok = false;
       }
-
-      if (!isValid) {
-        formStatus.textContent = "Please fix the highlighted errors.";
-        formStatus.classList.add("error");
+      if (!ok) {
+        status.textContent = "Please fix the errors above.";
+        status.classList.add("error");
         return;
       }
-
-      try {
-        const formData = {
-          name: name,
-          email: email,
-          message: message,
-        };
-
-        localStorage.setItem("contactFormData", JSON.stringify(formData));
-
-        formStatus.textContent = "Form is valid. Redirecting…";
-        formStatus.classList.add("success");
-
-        setTimeout(function () {
-          window.location.href = "form-details.html";
-        }, 700);
-      } catch (e) {
-        formStatus.textContent = "Unable to save data. Please try again.";
-        formStatus.classList.add("error");
-      }
-    });
+      // Save data
+      localStorage.setItem("contactFormData", JSON.stringify({
+        name: name.value, email: email.value, message: message.value
+      }));
+      status.textContent = "Form is valid. Redirecting…";
+      status.classList.add("success");
+      setTimeout(() => {
+        window.location.href = "form-details.html";
+      }, 700);
+    };
   }
 
-  // ------- Dark mode toggle -------
-  const toggleBtn = document.getElementById("theme-toggle");
-  const body = document.body;
-
-  const savedTheme = localStorage.getItem("theme"); // "dark" or "light"
-
-  if (savedTheme === "dark") {
-    body.classList.add("dark-mode");
-    if (toggleBtn) toggleBtn.textContent = "☀️";
+  // --- Dark mode toggle ---
+  const themeBtn = document.getElementById("theme-toggle");
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    if (themeBtn) themeBtn.textContent = "☀️";
   }
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", function () {
-      const isDark = body.classList.toggle("dark-mode");
-      toggleBtn.textContent = isDark ? "☀️" : "🌙";
+  if (themeBtn) {
+    themeBtn.onclick = function () {
+      const isDark = document.body.classList.toggle("dark-mode");
+      themeBtn.textContent = isDark ? "☀️" : "🌙";
       localStorage.setItem("theme", isDark ? "dark" : "light");
-    });
+    }
   }
 
-  // ------- Back to top button -------
-  const backToTopBtn = document.getElementById("backToTop");
-
-  if (backToTopBtn) {
-    window.addEventListener("scroll", function () {
-      if (window.scrollY > 300) {
-        backToTopBtn.style.display = "flex";
-      } else {
-        backToTopBtn.style.display = "none";
-      }
-    });
-
-    backToTopBtn.addEventListener("click", function () {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    });
+  // --- Back to top button ---
+  const upBtn = document.getElementById("backToTop");
+  if (upBtn) {
+    window.onscroll = function () {
+      upBtn.style.display = window.scrollY > 300 ? "flex" : "none";
+    };
+    upBtn.onclick = function () {
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
   }
-});
-  // ------- Project cards click -> open live site -------
-  const projectCards = document.querySelectorAll(".project-card");
 
-  projectCards.forEach((card) => {
+  // --- Project cards click ---
+  document.querySelectorAll(".project-card").forEach(function(card) {
     card.style.cursor = "pointer";
-
-    card.addEventListener("click", function () {
+    card.onclick = function () {
       const url = card.getAttribute("data-url");
-      if (url) {
-        window.location.href = url; // redirect to live project
-      }
-    });
+      if (url) location.href = url;
+    }
   });
+});

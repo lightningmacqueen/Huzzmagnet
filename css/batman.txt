@@ -1,3 +1,3 @@
 For me Flexbox is ideal for arranging items in one direction and keeping your skills section responsive.
 I could use Grid for more complex arrangements, like a gallery or project cards with both rows and columns.
-i find it really easy to use and understand Flexbox
+i find it really easy to use and understand Flexbox. i arranged skill section with flexbox.
